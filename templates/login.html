@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Domain Monitoring System - Login{% endblock %}
+
+{% block main_class %}py-5{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-globe fa-3x text-primary mb-3"></i>
+                        <h2 class="card-title">Welcome back</h2>
+                        <p class="text-muted">Please sign in to continue</p>
+                    </div>
+
+                    <form method="post" action="{{ url_for('login') }}" novalidate>
+                        {% if error %}
+                            <div class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-circle"></i> {{ error }}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input id="username" name="username" type="text" class="form-control" 
+                                   autocomplete="username" required placeholder="Enter your username" 
+                                   minlength="3" maxlength="30" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input id="password" name="password" type="password" class="form-control" 
+                                   autocomplete="current-password" required placeholder="Enter your password" 
+                                   minlength="8" maxlength="30" />
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" name="remember" value="1" id="remember">
+                            <label class="form-check-label" for="remember">
+                                Remember me
+                            </label>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt"></i> Sign In
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">Don't have an account? 
+                            <a href="{{ url_for('register') }}" class="text-decoration-none">Register here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+/* CSS styles for the domain monitoring system UI */
+/* style.css */
+
+#main_screen {
+    margin: 0; /* Remove default body margin */
+    display: flex; /* Use flexbox for overall page layout */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    min-height: 100vh; /* Make body take full viewport height */
+    font-family: sans-serif; /* A nice default font */
+    background-color: #f0f0f0; /* Light background for contrast */
+}
+
+/* Style for the button */
+#tranfer_button {
+    background-color: #dc3545; /* Red color */
+    color: white; /* White text */
+    padding: 15px 30px; /* Top/bottom padding, left/right padding */
+    border: none; /* No border */
+    border-radius: 8px; /* Slightly rounded corners */
+    font-size: 1.2em; /* Larger font size */
+    cursor: pointer; /* Indicate it's clickable */
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+#registerBody {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+#tranfer_button:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+/* Sort arrow styles */
+.sort-arrow {
+    margin-left: 5px;
+    opacity: 0.3;
+    font-size: 0.8em;
+    transition: opacity 0.2s ease;
+}
+
+th.asc .sort-arrow::after {
+    content: "▲";
+    opacity: 1;
+    color: #000000;
+}
+
+th.desc .sort-arrow::after {
+    content: "▼";
+    opacity: 1;
+    color: #000000;
+}
+
+/* Hover effect for sortable columns */
+th[onclick] {
+    transition: background-color 0.2s ease;
+}
+
+th[onclick]:hover {
+    background-color: #e9ecef;
+}
