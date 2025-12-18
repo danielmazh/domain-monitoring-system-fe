@@ -1,0 +1,14 @@
+2025-12-17 12:57:38,993 - app.py - INFO - User tried to login with data: {'username': 'eyal222222', 'password': '123QWE123'}
+2025-12-17 12:57:38,993 - app.py - INFO - User login attempt - username: eyal222222
+2025-12-17 12:57:48,577 - app.py - INFO - User tried to login with data: {'username': 'eyal222222', 'password': '123QWE123'}
+2025-12-17 12:57:48,577 - app.py - INFO - User login attempt - username: eyal222222
+2025-12-17 13:00:59,571 - app.py - INFO - User tried to login with data: {'username': 'eyal222222', 'password': '123123AA'}
+2025-12-17 13:00:59,571 - app.py - INFO - User login attempt - username: eyal222222
+2025-12-17 13:03:46,345 - app.py - INFO - User tried to login with data: {'username': 'eyal222222', 'password': '123123AA'}
+2025-12-17 13:03:46,345 - app.py - INFO - User login attempt - username: eyal222222
+2025-12-17 13:10:14,444 - app.py - INFO - User tried to login with data: {'username': 'eyal222222', 'password': '123AA123'}
+2025-12-17 13:10:14,444 - app.py - INFO - User login attempt - username: eyal222222
+2025-12-17 13:10:24,012 - app.py - INFO - User tried to login with data: {'username': 'eyal222222', 'password': '123AA123'}
+2025-12-17 13:10:24,012 - app.py - INFO - User login attempt - username: eyal222222
+2025-12-17 13:10:40,978 - app.py - INFO - User tried to login with data: {'username': 'eyal222222', 'password': '123123AA'}
+2025-12-17 13:10:40,978 - app.py - INFO - User login attempt - username: eyal222222

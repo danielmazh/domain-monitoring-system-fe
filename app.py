@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 from datetime import datetime
 from functools import wraps
+from flask_cors import CORS
 
 # Check if the directory exists and create it if not
 log_dir = './logs'
@@ -26,6 +27,7 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 app.config["SECRET_KEY"] = "replace-me"  # REQUIRED for sessions
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -171,46 +173,60 @@ def register():
 
     return render_template('register.html')
 
-@app.route('/logincheck', methods=['GET', 'POST'])
+from flask import request, jsonify, redirect, url_for, render_template, flash, session
+
+@app.route('/logincheck', methods=['GET', 'POST', 'OPTIONS'])
 def login():
+    # 1. Handle GET: old browser form visits this URL directly
     if request.method == 'GET':
-        # If user visits this URL directly, show the form (or redirect to '/')
         return redirect(url_for('index'))
 
-    # POST: Handle form submission
+    # 2. Handle CORS preflight (OPTIONS)
+    if request.method == 'OPTIONS':
+        # Let flask-cors handle headers, just return 200
+        return '', 200
+
+    # 3. Handle POST from static frontend (JSON) or old HTML form
+    # Try JSON first
     data = request.get_json(silent=True)
     logger.info(f"User tried to login with data: {data}")
 
+    # Fallback to form data if no JSON (for old HTML form)
     if data is None:
         data = request.form
 
-    username = data.get('username')
-    password = data.get('password')
+    username = (data.get('username') or '').strip()
+    password = data.get('password') or ''
     logger.info(f"User login attempt - username: {username}")
 
     # Input validation
     if not username or not password:
         error_msg = "Please enter both username and password."
-        if request.content_type == 'application/json':
-            return {"error": "Invalid username or password"}, 401 # Using 401 for bad credentials/missing fields
+        if request.content_type and 'application/json' in request.content_type:
+            return jsonify({"error": error_msg}), 401  # JSON error for API clients
         flash(error_msg)
         return render_template('login.html', username=username)
-    
+
     users = load_users()
     username_lower = username.lower()
+
     if username_lower in users and users[username_lower].get("password") == password:
         session["user"] = username_lower
-        if request.content_type == 'application/json':
-            # Success API Response as requested
-            return {"message": "Login successful"}, 200 # HTTP 200 OK
-        
-        return redirect(url_for('dashboard'))
-    else:
-        if request.content_type == 'application/json':
-            # Error API Response as requested
-            return {"error": "Invalid username or password"}, 401 # HTTP 401 Unauthorized
 
-    return render_template('login.html', error="Invalid username or password.")
+        if request.content_type and 'application/json' in request.content_type:
+            # Success API response for static frontend
+            return jsonify({"message": "Login successful"}), 200
+
+        # Old HTML flow
+        return redirect(url_for('dashboard'))
+
+    # Invalid credentials
+    error_msg = "Invalid username or password"
+
+    if request.content_type and 'application/json' in request.content_type:
+        return jsonify({"error": error_msg}), 401
+
+    return render_template('login.html', error=error_msg)
         
 @app.route("/logout")
 def logout():
