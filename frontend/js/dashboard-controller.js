@@ -375,9 +375,25 @@ document.addEventListener('click', function(e) {
 
 // function to initialize the dashboard
 document.addEventListener('DOMContentLoaded', function() {
-    get_user_domains()
+    get_user_domains();
     updateStats();
+
+    // Logout button
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                // Calls frontend Nginx: /api/logout -> backend route: /logout
+                await fetchWithTimeout('/api/logout', { method: 'GET' });
+            } catch (e) {
+                console.error('Logout failed:', e);
+            } finally {
+                window.location.href = 'login.html';
+            }
+        });
+    }
 });
+
 
 function sortTable(button, column) {
     let isDesc = button.classList.contains('desc');

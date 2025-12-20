@@ -2,10 +2,11 @@
 // For now, calls the backend directly at localhost:8080.
 // Later, Nginx will proxy /api/... to this backend.
 
-const API_BASE_URL = 'http://localhost:8080';  // adjust if your backend uses a different port/path
+const API_BASE_URL = '/api';
 
 async function apiRequest(path, options = {}) {
-  const url = API_BASE_URL + path;
+  const finalPath = path.startsWith('/') ? path : `/${path}`;
+  const url = API_BASE_URL + finalPath;
 
   const defaultHeaders = {
     'Content-Type': 'application/json',

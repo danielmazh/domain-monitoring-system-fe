@@ -291,6 +291,35 @@ def logs():
 ###################################################
 ################  API routes   ####################
 ###################################################
+@app.route('/api/logincheck', methods=['POST', 'OPTIONS'])
+def api_logincheck():
+    # Preflight request (CORS)
+    if request.method == 'OPTIONS':
+        return '', 200
+
+    data = request.get_json(silent=True) or {}
+    username = (data.get('username') or '').strip()
+    password = data.get('password') or ''
+
+    if not username or not password:
+        return jsonify({"error": "Please enter both username and password."}), 401
+
+    users = load_users()
+    username_lower = username.lower()
+
+    if username_lower in users and users[username_lower].get("password") == password:
+        session["user"] = username_lower
+        return jsonify({"message": "Login successful"}), 200
+
+    return jsonify({"error": "Invalid username or password"}), 401
+
+@app.route('/api/logout', methods=['GET', 'OPTIONS'])
+def api_logout():
+    if request.method == 'OPTIONS':
+        return '', 200
+
+    session.pop("user", None)
+    return jsonify({"message": "Logged out"}), 200
 
 @app.route('/api/add-domain', methods=['POST'])
 @login_required
@@ -394,6 +423,10 @@ def check_urls():
 def api_get_logs():
     logs = load_user_logs()
     return jsonify(logs)
+
+@app.route('/api/health', methods=['GET'])
+def api_health():
+    return jsonify({"status": "ok"}), 200
 
 ###################################################
 ############ functions for the app.py #############
