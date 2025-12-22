@@ -373,40 +373,50 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// function to initialize the dashboard
-document.addEventListener('DOMContentLoaded', function() {
-    get_user_domains();
-    updateStats();
-
-    // Logout button
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                // Calls frontend Nginx: /api/logout -> backend route: /logout
-                await fetchWithTimeout('/api/logout', { method: 'GET' });
-            } catch (e) {
-                console.error('Logout failed:', e);
-            } finally {
-                window.location.href = 'login.html';
-            }
-        });
-    }
+document.addEventListener("DOMContentLoaded", async () => {
+  // 1) Auth/session guard FIRST
+  try {
+    const r = await fetchWithTimeout("/api/get-domains", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({}) // or { sortBy: null, sortOrder: null } if backend requires keys
 });
 
-
-function sortTable(button, column) {
-    let isDesc = button.classList.contains('desc');
-    
-    buttons = document.querySelectorAll('th');
-    buttons.forEach(btn => {
-        btn.classList.remove('asc', 'desc');
-    });
-    if (isDesc) {
-        button.classList.add('asc');
-    } 
-    else {
-        button.classList.add('desc');
+    const ct = (r.headers.get("content-type") || "").toLowerCase();
+    if (ct.includes("text/html")) {
+      window.location.replace("/login.html");
+      return;
+}
+    if (r.status === 401 || r.status === 403) {
+      window.location.replace("/login.html");
+      return;
     }
-    get_user_domains(column, isDesc ? 'asc' : 'desc');
-}   
+     // Fallback: backend might return 200 with {error: "..."}
+    let payload = null;
+    try { payload = await r.clone().json(); } catch (_) {}
+    if (payload && payload.error) {
+      window.location.replace("/login.html");
+      return;
+    }
+  } catch (e) {
+    window.location.replace("/login.html");
+    return;
+  }
+
+  // 2) Only if authorized: load data + wire events
+  get_user_domains();
+  updateStats();
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await fetchWithTimeout("/api/logout", { method: "GET" });
+      } catch (e) {
+        console.error("Logout failed:", e);
+      } finally {
+        window.location.href = "login.html";
+      }
+    });
+  }
+});
