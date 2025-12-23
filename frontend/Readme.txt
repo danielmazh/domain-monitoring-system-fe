@@ -2,7 +2,7 @@ Frontend Split + Nginx Reverse Proxy
 What was delivered
 The frontend was separated from the Flask backend and is now served as static files from an Nginx Docker container. API calls from the browser now go to the same origin as the frontend (port 8081) using /api/*, and Nginx proxies those requests to the backend running on 8080.​
 
-Chain of events (what happened during the work)
+Chain of events
 Verified the backend is healthy directly (local): GET http://localhost:8080/api/health returned 200 with {"status":"ok"} (backend readiness baseline).
 
 Built a frontend Docker image that contains: static HTML/JS pages + an Nginx configuration.
