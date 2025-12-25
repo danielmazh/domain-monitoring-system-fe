@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Domain Monitoring Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap CSS -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <!-- Your CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-light">
+
+  <!-- Top navbar (replaces base.html layout) -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="dashboard.html">
+        <i class="fas fa-globe"></i> Domain Monitoring Dashboard
+      </a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarContent"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
+        <ul class="navbar-nav mb-2 mb-lg-0">
+          <li class="nav-item me-2">
+            <!-- This matches your old "Add" button in add_domain_button block -->
+            <button
+              class="nav-link btn btn-link text-light"
+              data-bs-toggle="modal"
+              data-bs-target="#addDomainModal"
+            >
+              <i class="fas fa-plus"></i> Add
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="btn btn-outline-light btn-sm" id="logoutBtn">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Header -->
+  <div class="dashboard-header mb-3">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1 class="mb-0">
+            <!-- <i class="fas fa-tachometer-alt"></i> Domain Monitoring Dashboard -->
+          </h1>
+          <!-- <p class="mb-0 mt-2">Monitor your domains' health and SSL certificates</p> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container mb-5">
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-globe fa-2x text-primary mb-2"></i>
+            <h5 class="card-title">Total Domains</h5>
+            <h3 class="text-primary" id="totalDomains">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+            <h5 class="card-title">Online</h5>
+            <h3 class="text-success" id="onlineDomains">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+            <h5 class="card-title">SSL Expiring</h5>
+            <h3 class="text-warning" id="sslExpiring">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+            <h5 class="card-title">Offline</h5>
+            <h3 class="text-danger" id="offlineDomains">0</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Domains card -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">
+          Pending Domains: <span id="pendingDomains">0</span>
+        </h5>
+        <small class="text-muted">Pending verification</small>
+      </div>
+    </div>
+
+    <!-- Domains Table -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="fas fa-list"></i> Domain Status
+        </h5>
+        <div>
+          <button
+            class="btn btn-outline-primary btn-sm"
+            id="checkAllBtn"
+            onclick="checkURLs && checkURLs()"
+            title="Check All Domains"
+          >
+            <i class="fa fa-check"></i> Check All
+          </button>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th scope="col" style="cursor: pointer;" onclick="sortTable && sortTable(this,'domain')">
+                  <i class="fas fa-globe"></i> Domain Name <span class="sort-arrow"></span>
+                </th>
+                <th scope="col" style="cursor: pointer;" onclick="sortTable && sortTable(this,'status')">
+                  <i class="fas fa-heartbeat"></i> Liveness Status <span class="sort-arrow"></span>
+                </th>
+                <th scope="col" style="cursor: pointer;" onclick="sortTable && sortTable(this,'ssl_expiration')">
+                  <i class="fas fa-calendar-alt"></i> SSL Expiration Date <span class="sort-arrow"></span>
+                </th>
+                <th scope="col" style="cursor: pointer;" onclick="sortTable && sortTable(this,'ssl_issuer')">
+                  <i class="fas fa-certificate"></i> SSL Issuer <span class="sort-arrow"></span>
+                </th>
+                <th scope="col">
+                  <i class="fas fa-cog"></i> Actions
+                </th>
+                <th scope="col" style="cursor: pointer;" onclick="sortTable && sortTable(this,'last_chk')">
+                  Last Check <span class="sort-arrow"></span>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="domainsTableBody">
+              <!-- user data will be loaded here by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="text-center py-5" style="display: none;">
+      <i class="fas fa-globe fa-4x text-muted mb-3"></i>
+      <h4 class="text-muted">No domains to monitor</h4>
+      <p class="text-muted">Add your first domain to start monitoring</p>
+      <button
+        class="btn btn-add-domain btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#addDomainModal"
+      >
+        <i class="fas fa-plus"></i> Add Domain
+      </button>
+    </div>
+  </div>
+
+  <!-- Add Domain Modal -->
+  <div class="modal fade" id="addDomainModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-plus"></i> Add Domains
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Add Method Selection -->
+          <div class="mb-4">
+            <label class="form-label">Choose how to add domains:</label>
+            <div class="row">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <div
+                  class="card h-100"
+                  style="cursor: pointer;"
+                  onclick="selectAddMethod('single', this)"
+                >
+                  <div class="card-body text-center">
+                    <i class="fas fa-globe fa-2x text-primary mb-2"></i>
+                    <h6 class="card-title">Single Domain</h6>
+                    <p class="card-text small text-muted">Add one domain manually</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div
+                  class="card h-100"
+                  style="cursor: pointer;"
+                  onclick="selectAddMethod('file', this)"
+                >
+                  <div class="card-body text-center">
+                    <i class="fas fa-file-upload fa-2x text-success mb-2"></i>
+                    <h6 class="card-title">Upload File</h6>
+                    <p class="card-text small text-muted">Upload multiple domains from file</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Single Domain Form -->
+          <div id="singleDomainForm" style="display: none;">
+            <form id="addSingleDomainForm">
+              <div class="mb-3">
+                <label for="domainName" class="form-label">Domain Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="domainName"
+                  placeholder="example.com"
+                  required
+                />
+                <div class="form-text">
+                  Enter a single domain name (e.g., example.com)
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- File Upload Form -->
+          <div id="fileUploadForm" style="display: none;">
+            <form id="addFileUploadForm">
+              <div class="mb-3">
+                <label for="domainFile" class="form-label">Upload Domain File</label>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="domainFile"
+                  accept=".txt,.csv"
+                  required
+                />
+                <div class="form-text">
+                  Upload a text file (.txt) or CSV file (.csv) with one domain per line
+                </div>
+              </div>
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>File Format:</strong> Each line should contain one domain name (e.g., example.com)
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-add-domain btn-primary"
+            id="addDomainBtn"
+            onclick="addDomain && addDomain()"
+            style="display: none;"
+          >
+            <i class="fas fa-plus"></i> Add Domain
+          </button>
+          <button
+            type="button"
+            class="btn btn-add-domain btn-primary"
+            id="uploadFileBtn"
+            onclick="uploadFile && uploadFile()"
+            style="display: none;"
+          >
+            <i class="fas fa-upload"></i> Upload File
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"
+  ></script>
+
+  <!-- Shared API helper -->
+  <script src="js/api.js"></script>
+  <!-- Dashboard logic (copy of your old JS, adjusted later to use apiRequest) -->
+  <script src="js/dashboard-controller.js"></script>
+</body>
+</html>
