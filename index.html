@@ -4,31 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Domain Monitoring System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-<head>
-    <h1>Hello, </h1>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f5f5f5;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
-
-
-<head>
 <body>
-    <header>
-        <h1>Domain Monitoring System</h1>
-        <nav>
-            <ul>
-                <li><a href="/">Login</a></li>
-                <li><a href="/logout">Logout</a></li>
-                <li><a href="/register">Register</a></li>
-            </ul>
-        </nav>
-    </header>
+    <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
 
-    <main>
-        <h2>Welcome to the Domain Monitoring System</h2>
-        <p>This system allows you to monitor the status of your domains and receive alerts for any issues.</p>
-    </main>
+    <script>
+        // Check if user is authenticated by trying to access a protected endpoint
+        (async function() {
+            try {
+                const response = await fetch('/api/get-stats', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
 
-    <footer>
-        <p>&copy; 2024 Domain Monitoring System</p>
-    </footer>
+                if (response.ok) {
+                    // User is authenticated, redirect to dashboard
+                    window.location.replace('dashboard.html');
+                } else {
+                    // User is not authenticated, redirect to login
+                    window.location.replace('login.html');
+                }
+            } catch (error) {
+                // On error, redirect to login
+                console.error('Session check failed:', error);
+                window.location.replace('login.html');
+            }
+        })();
+    </script>
+</body>
+</html>

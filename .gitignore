@@ -1,0 +1,23 @@
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+
+# Node modules (if using npm/yarn in future)
+node_modules/
+
+# Local testing files
+*.local.*
+Dockerfile.local
+docker-compose.local.yml
+

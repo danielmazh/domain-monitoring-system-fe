@@ -6,6 +6,7 @@ function fetchWithTimeout(url, options = {}, timeout = 10000) {
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     
     return fetch(url, {
+        credentials: 'include', // send cookies (session)
         ...options,
         signal: controller.signal
     }).finally(() => {
@@ -373,50 +374,78 @@ document.addEventListener('click', function(e) {
     }
 });
 
-document.addEventListener("DOMContentLoaded", async () => {
-  // 1) Auth/session guard FIRST
-  try {
-    const r = await fetchWithTimeout("/api/get-domains", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({}) // or { sortBy: null, sortOrder: null } if backend requires keys
+// function to initialize the dashboard
+document.addEventListener('DOMContentLoaded', async function() {
+    // Session check first
+    try {
+        const r = await fetchWithTimeout("/api/get-domains", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({})
+        });
+
+        if (r.status === 401 || r.status === 403) {
+            window.location.replace("login.html");
+            return;
+        }
+
+        const ct = (r.headers.get("content-type") || "").toLowerCase();
+        if (ct.includes("text/html")) {
+            window.location.replace("login.html");
+            return;
+        }
+    } catch (e) {
+        window.location.replace("login.html");
+        return;
+    }
+
+    // Fetch and display current username
+    try {
+        const userResponse = await fetchWithTimeout("/api/current-user", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        });
+        const userData = await userResponse.json();
+        const welcomeMessage = document.getElementById("welcomeMessage");
+        if (welcomeMessage && userData.username) {
+            welcomeMessage.textContent = `Welcome, ${userData.username}`;
+        }
+    } catch (e) {
+        console.error("Failed to fetch current user:", e);
+    }
+
+    // Load data
+    get_user_domains()
+    updateStats();
+
+    // Logout handler
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", async (event) => {
+            event.preventDefault(); // Prevent default anchor behavior
+            try {
+                await fetchWithTimeout("/api/logout", { method: "GET" });
+            } catch (e) {
+                console.error("Logout failed:", e);
+            } finally {
+                window.location.href = "login.html";
+            }
+        });
+    }
 });
 
-    const ct = (r.headers.get("content-type") || "").toLowerCase();
-    if (ct.includes("text/html")) {
-      window.location.replace("/login.html");
-      return;
-}
-    if (r.status === 401 || r.status === 403) {
-      window.location.replace("/login.html");
-      return;
-    }
-     // Fallback: backend might return 200 with {error: "..."}
-    let payload = null;
-    try { payload = await r.clone().json(); } catch (_) {}
-    if (payload && payload.error) {
-      window.location.replace("/login.html");
-      return;
-    }
-  } catch (e) {
-    window.location.replace("/login.html");
-    return;
-  }
-
-  // 2) Only if authorized: load data + wire events
-  get_user_domains();
-  updateStats();
-
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async () => {
-      try {
-        await fetchWithTimeout("/api/logout", { method: "GET" });
-      } catch (e) {
-        console.error("Logout failed:", e);
-      } finally {
-        window.location.href = "login.html";
-      }
+function sortTable(button, column) {
+    let isDesc = button.classList.contains('desc');
+    
+    buttons = document.querySelectorAll('th');
+    buttons.forEach(btn => {
+        btn.classList.remove('asc', 'desc');
     });
-  }
-});
+    if (isDesc) {
+        button.classList.add('asc');
+    } 
+    else {
+        button.classList.add('desc');
+    }
+    get_user_domains(column, isDesc ? 'asc' : 'desc');
+}   

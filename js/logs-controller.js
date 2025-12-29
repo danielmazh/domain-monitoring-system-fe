@@ -138,6 +138,7 @@ function fetchWithTimeout(url, options = {}, timeout = 10000) {
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     
     return fetch(url, {
+        credentials: 'include', // send cookies (session)
         ...options,
         signal: controller.signal
     }).finally(() => {
