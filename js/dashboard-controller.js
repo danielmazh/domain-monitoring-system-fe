@@ -316,7 +316,7 @@ function createDomainRow(domainData) {
                     style="color: red; border-color: red;" 
                     onmouseover="this.style.backgroundColor='red'; this.style.color='white';"
                     onmouseout="this.style.backgroundColor='transparent'; this.style.color='red';" title="Delete Domain">
-                    <i class="bi bi-trash"></i>
+                    <i class="fas fa-trash"></i>
                 </button>
 
                 <button class="btn btn-outline-primary btn-sm check-btn" 
