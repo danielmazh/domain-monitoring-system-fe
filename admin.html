@@ -603,7 +603,7 @@ Example: SELECT * FROM users;">SELECT user_id, username, email, created_at FROM 
 
     // ============ INITIALIZATION ============
     document.addEventListener('DOMContentLoaded', async () => {
-      // Session check
+      // Session and admin role check
       try {
         const response = await fetch('/api/current-user', {
           method: 'GET',
@@ -617,6 +617,15 @@ Example: SELECT * FROM users;">SELECT user_id, username, email, created_at FROM 
         }
 
         const userData = await response.json();
+        
+        // Check if user has admin role
+        if (userData.role !== 'admin') {
+          console.warn('Admin access denied: User does not have admin role');
+          alert('Access denied. Admin privileges required.');
+          window.location.replace('dashboard.html');
+          return;
+        }
+        
         const welcomeMessage = document.getElementById('welcomeMessage');
         if (welcomeMessage && userData.username) {
           welcomeMessage.textContent = `Welcome, ${userData.username}`;

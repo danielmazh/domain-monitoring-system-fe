@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
 
-    // Fetch and display current username
+    // Fetch and display current username and check admin role
     try {
         const userResponse = await fetchWithTimeout("/api/current-user", {
             method: "GET",
@@ -410,6 +410,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (welcomeMessage && userData.username) {
             welcomeMessage.textContent = `Welcome, ${userData.username}`;
         }
+        
+        // Admin link is visible for all users but protected by backend
+        // Non-admin users will be redirected to dashboard when accessing admin.html
     } catch (e) {
         console.error("Failed to fetch current user:", e);
     }
