@@ -411,8 +411,24 @@ document.addEventListener('DOMContentLoaded', async function() {
             welcomeMessage.textContent = `Welcome, ${userData.username}`;
         }
         
-        // Admin link is visible for all users but protected by backend
-        // Non-admin users will be redirected to dashboard when accessing admin.html
+        // Show Admin Panel for admins, Logs for regular users
+        const adminPanelLink = document.getElementById("adminPanelLink");
+        const logsLink = document.getElementById("logsLink");
+        if (userData.role === 'admin') {
+            if (adminPanelLink) {
+                adminPanelLink.classList.remove('d-none');
+            }
+            if (logsLink) {
+                logsLink.classList.add('d-none');
+            }
+        } else {
+            if (adminPanelLink) {
+                adminPanelLink.classList.add('d-none');
+            }
+            if (logsLink) {
+                logsLink.classList.remove('d-none');
+            }
+        }
     } catch (e) {
         console.error("Failed to fetch current user:", e);
     }
