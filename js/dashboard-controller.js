@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
 
-    // Fetch and display current username
+    // Fetch and display current username and check admin role
     try {
         const userResponse = await fetchWithTimeout("/api/current-user", {
             method: "GET",
@@ -409,6 +409,46 @@ document.addEventListener('DOMContentLoaded', async function() {
         const welcomeMessage = document.getElementById("welcomeMessage");
         if (welcomeMessage && userData.username) {
             welcomeMessage.textContent = `Welcome, ${userData.username}`;
+        }
+        
+        // Show Admin Panel for admins, Logs for regular users
+        console.log("User data from API:", userData);
+        console.log("User role:", userData.role);
+        const adminPanelLink = document.getElementById("adminPanelLink");
+        const logsLink = document.getElementById("logsLink");
+        console.log("Admin Panel Link element:", adminPanelLink);
+        console.log("Logs Link element:", logsLink);
+        
+        // Ensure we have the role (default to 'user' if not present)
+        const userRole = userData.role || 'user';
+        console.log("Determined role:", userRole);
+        
+        if (userRole === 'admin') {
+            console.log("User is admin - showing Admin Panel, hiding Logs");
+            if (adminPanelLink) {
+                adminPanelLink.classList.remove('d-none');
+                console.log("Admin Panel link shown");
+            } else {
+                console.error("Admin Panel link not found!");
+            }
+            if (logsLink) {
+                logsLink.classList.add('d-none');
+                console.log("Logs link hidden");
+            } else {
+                console.error("Logs link not found!");
+            }
+        } else {
+            console.log("User is not admin (role:", userRole, ") - hiding Admin Panel, showing Logs");
+            if (adminPanelLink) {
+                adminPanelLink.classList.add('d-none');
+                console.log("Admin Panel link hidden");
+            }
+            if (logsLink) {
+                logsLink.classList.remove('d-none');
+                console.log("Logs link shown");
+            } else {
+                console.error("Logs link not found!");
+            }
         }
     } catch (e) {
         console.error("Failed to fetch current user:", e);
